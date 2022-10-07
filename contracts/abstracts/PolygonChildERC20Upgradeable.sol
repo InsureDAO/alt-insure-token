@@ -6,7 +6,10 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-contract PolygonChildERC20 is AccessControlUpgradeable, ERC20Upgradeable {
+abstract contract PolygonChildERC20Upgradeable is
+    AccessControlUpgradeable,
+    ERC20Upgradeable
+{
     bytes32 public constant DEPOSITOR_ROLE = keccak256("DEPOSITOR_ROLE");
 
     function __PolygonChildERC20_init(address _childChainManagerProxy)
