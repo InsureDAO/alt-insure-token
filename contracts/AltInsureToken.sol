@@ -6,7 +6,6 @@ import {PolygonChildERC20Upgradeable} from "./abstracts/PolygonChildERC20Upgrade
 import {OptimismERC20Upgradable} from "./abstracts/OptimismERC20Upgradable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 contract AltInsureTokenV1 is
     ERC20Upgradeable,
