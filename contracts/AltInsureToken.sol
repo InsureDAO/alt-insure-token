@@ -3,14 +3,14 @@ pragma solidity ^0.8.17;
 
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {PolygonChildERC20Upgradeable} from "./abstracts/PolygonChildERC20Upgradeable.sol";
-import {OptimismERC20Upgradable} from "./abstracts/OptimismERC20Upgradable.sol";
+import {OptimismERC20Upgradeable} from "./abstracts/OptimismERC20Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 contract AltInsureTokenV1 is
     ERC20Upgradeable,
     OwnableUpgradeable,
-    OptimismERC20Upgradable,
+    OptimismERC20Upgradeable,
     PolygonChildERC20Upgradeable
 {
     struct Supply {
@@ -78,7 +78,7 @@ contract AltInsureTokenV1 is
     function supportsInterface(bytes4 _interfaceId)
         public
         view
-        override(AccessControlUpgradeable, OptimismERC20Upgradable)
+        override(AccessControlUpgradeable, OptimismERC20Upgradeable)
         returns (bool)
     {
         return super.supportsInterface(_interfaceId);

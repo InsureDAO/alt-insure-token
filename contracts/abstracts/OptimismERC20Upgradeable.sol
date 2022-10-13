@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IOptimismStandardERC20} from "../interfaces/IOptimismStandardERC20.sol";
 
-abstract contract OptimismERC20Upgradable is
+abstract contract OptimismERC20Upgradeable is
     Initializable,
     IOptimismStandardERC20
 {
