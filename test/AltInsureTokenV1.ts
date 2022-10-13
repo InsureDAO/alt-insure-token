@@ -4,12 +4,13 @@ describe("AltInsureTokenV1", () => {
   it("should be deployed", async () => {
     const [account] = await ethers.getSigners();
     console.log("account: ", account.address);
-    const childChainManagerProxy = "0xb5505a6d998549090530911180f38aC5130101c6";
     const l1token = "0x0C4a63D472120d7859E2842b7C2Bafbd8eDe8f44";
+    const childChainManagerProxy = "0xb5505a6d998549090530911180f38aC5130101c6";
+    const arbitrumL2Gateway = "0x09e9222E96E7B4AE2a407B98d48e330053351EEe";
     const AltInsureToken = await ethers.getContractFactory("AltInsureTokenV1");
     const altInsureToken = await upgrades.deployProxy(
       AltInsureToken,
-      [childChainManagerProxy, l1token],
+      [l1token, childChainManagerProxy, arbitrumL2Gateway],
       {
         unsafeAllow: ["delegatecall"],
       }
