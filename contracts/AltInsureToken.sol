@@ -2,16 +2,17 @@
 pragma solidity ^0.8.17;
 
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {PolygonChildERC20Upgradeable} from "./abstracts/PolygonChildERC20Upgradeable.sol";
+import {OptimismERC20Upgradable} from "./abstracts/OptimismERC20Upgradable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
-import {ERC2771ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 contract AltInsureTokenV1 is
     ERC20Upgradeable,
-    PolygonChildERC20Upgradeable,
-    OwnableUpgradeable
+    OwnableUpgradeable,
+    OptimismERC20Upgradable,
+    PolygonChildERC20Upgradeable
 {
     struct Supply {
         uint256 cap;
@@ -20,37 +21,39 @@ contract AltInsureTokenV1 is
 
     mapping(address => Supply) public bridges;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(address _childChainManagerProxy)
+    function initialize(address _childChainManagerProxy, address _l1Token)
         public
         virtual
         initializer
     {
         __ERC20_init("alt insure token", "INSURE");
-        __PolygonChildERC20_init(_childChainManagerProxy);
         __Ownable_init();
+        __PolygonChildERC20_init(_childChainManagerProxy);
+        __OptimismERC20_init(_l1Token);
     }
 
-    function mint(address _to, uint256 _amount) external returns (bool) {
+    function mint(address _to, uint256 _amount) external override {
         Supply storage bridgeSupply = bridges[msg.sender];
         if (bridgeSupply.cap < 0) revert NotAllowedBridger();
         bridgeSupply.total += _amount;
         if (bridgeSupply.total > bridgeSupply.cap) revert ExceedSupplyCap();
         _mint(_to, _amount);
-        return true;
     }
 
-    function burn(uint256 _amount) external returns (bool) {
+    function burn(uint256 _amount) external {
         _burn(_msgSender(), _amount);
-        return true;
     }
 
-    function burn(address _from, uint256 _amount) external returns (bool) {}
+    function burn(address _from, uint256 _amount) external override {
+        _burn(_from, _amount);
+    }
 
-    function _burnFrom(address _from, uint256 _amount) internal returns (bool) {
+    function _burnFrom(address _from, uint256 _amount) internal {
         Supply storage bridgeSupply = bridges[msg.sender];
         if (bridgeSupply.cap > 0 || bridgeSupply.total > 0) {
             if (bridgeSupply.total < _amount) revert BurnAmountExceeded();
@@ -60,7 +63,6 @@ contract AltInsureTokenV1 is
         }
         _spendAllowance(_from, msg.sender, _amount);
         _burn(_from, _amount);
-        return true;
     }
 
     function updateBridgeSupplyCap(address _bridge, uint256 _cap)
@@ -72,6 +74,15 @@ contract AltInsureTokenV1 is
 
     function getOwner() external view returns (address) {
         return owner();
+    }
+
+    function supportsInterface(bytes4 _interfaceId)
+        public
+        view
+        override(AccessControlUpgradeable, OptimismERC20Upgradable)
+        returns (bool)
+    {
+        return super.supportsInterface(_interfaceId);
     }
 }
 
