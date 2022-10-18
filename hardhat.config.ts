@@ -39,12 +39,42 @@ const config: HardhatUserConfig = {
       url: process.env.MUMBAI_RPC,
       accounts: [process.env.DEPLOY_KEY ?? ""],
     },
+    optGoerli: {
+      chainId: 420,
+      url: process.env.OPT_GOERLI_RPC,
+      accounts: [process.env.DEPLOY_KEY ?? ""],
+    },
+    arbGoerli: {
+      chainId: 421613,
+      url: process.env.ARB_GOERLI_RPC,
+      accounts: [process.env.DEPLOY_KEY ?? ""],
+    },
   },
   etherscan: {
     apiKey: {
       polygonMumbai: process.env.POLYGONSCAN_API_KEY ?? "",
       goerli: process.env.ETHERSCAN_API_KEY ?? "",
+      optimisticGoerli: process.env.OPT_ETHERSCAN_API_KEY ?? "",
+      arbitrumGoerli: process.env.ARB_ETHERSCAN_API_KEY ?? "",
     },
+    customChains: [
+      {
+        network: "optimisticGoerli",
+        chainId: 420,
+        urls: {
+          apiURL: "https://api-goerli-optimism.etherscan.io/api",
+          browserURL: "https://goerli-optimism.etherscan.io/",
+        },
+      },
+      {
+        network: "arbitrumGoerli",
+        chainId: 421613,
+        urls: {
+          apiURL: "https://api-goerli.arbiscan.io/api",
+          browserURL: "https://goerli.arbiscan.io/",
+        },
+      },
+    ],
   },
 };
 

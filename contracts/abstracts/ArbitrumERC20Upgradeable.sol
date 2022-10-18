@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IArbToken} from "../interfaces/IArbToken.sol";
+import {AddressZero} from "../errors/CommonErrors.sol";
 
 abstract contract ArbitrumERC20Upgradeable is
     Initializable,
@@ -23,6 +24,7 @@ abstract contract ArbitrumERC20Upgradeable is
         internal
         onlyInitializing
     {
+        if (_l1Address == address(0)) revert AddressZero();
         l2Gateway = _l2Gateway;
         l1Address = _l1Address;
     }
