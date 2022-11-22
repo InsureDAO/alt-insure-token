@@ -13,6 +13,7 @@
     "eslint-plugin-n": "^15.3.0",
     "eslint-plugin-promise": "^6.0.1",
     "husky": "^7.0.0",
+    "mustache": "^4.2.0",
     "typescript": "^4.8.4"
   },
   "dependencies": {
@@ -24,6 +25,12 @@
   "scripts": {
     "prepare": "husky install",
     "test": "hardhat test",
-    "coverage": "hardhat coverage"
+    "coverage": "hardhat coverage",
+    "deploy:optimism": "NETWORK=optimism TESTNET=true scripts/01.initial-deploy.sh",
+    "deploy:arbitrum": "NETWORK=arbitrum TESTNET=true scripts/01.initial-deploy.sh",
+    "deploy:polygon": "NETWORK=polygon TESTNET=true scripts/01.initial-deploy.sh",
+    "deploy:optimismGoerli": "NETWORK=optimismGoerli TESTNET=true scripts/01.initial-deploy.sh",
+    "deploy:arbitrumGoerli": "NETWORK=optimismGoerli TESTNET=true scripts/01.initial-deploy.sh",
+    "deploy:mumbai": "NETWORK=mumbai TESTNET=true scripts/01.initial-deploy.sh"
   }
 }

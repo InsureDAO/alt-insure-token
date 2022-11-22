@@ -39,12 +39,12 @@ const config: HardhatUserConfig = {
       url: process.env.MUMBAI_RPC,
       accounts: [process.env.DEPLOY_KEY ?? ""],
     },
-    optGoerli: {
+    optimismGoerli: {
       chainId: 420,
       url: process.env.OPT_GOERLI_RPC,
       accounts: [process.env.DEPLOY_KEY ?? ""],
     },
-    arbGoerli: {
+    arbitrumGoerli: {
       chainId: 421613,
       url: process.env.ARB_GOERLI_RPC,
       accounts: [process.env.DEPLOY_KEY ?? ""],
