@@ -6,7 +6,7 @@ interface AddressMap {
 
 const L1_TOKEN = {
   mainnet: "",
-  goerli: "0x0C4a63D472120d7859E2842b7C2Bafbd8eDe8f44",
+  goerli: "0x78D4979D12955e21dBb6e589D11F4865CeBf8b89",
 };
 
 const ARBITRUM_L2_GATEWAY: AddressMap = {

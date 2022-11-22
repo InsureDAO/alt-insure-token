@@ -15,6 +15,14 @@ async function main(): Promise<void> {
     "AltInsureTokenV1",
     deployer
   );
+
+  console.log("configurations:", {
+    chainId,
+    l1Token,
+    arbL2Gateway,
+    childChainManagerProxy,
+  });
+
   const altInsureToken = await upgrades.deployProxy(
     AltInsureTokenV1,
     [l1Token, childChainManagerProxy, arbL2Gateway],

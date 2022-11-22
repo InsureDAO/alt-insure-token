@@ -64,7 +64,7 @@ describe("AltInsureTokenV1", () => {
     it("initialize", async () => {
       const { altInsureToken, deployer } = await loadFixture(deployFixture);
 
-      await assert.eventually.equal(altInsureToken.name(), "InsureToken");
+      await assert.eventually.equal(altInsureToken.name(), "AltInsureToken");
       await assert.eventually.equal(altInsureToken.symbol(), "INSURE");
       await assert.eventually.equal(altInsureToken.owner(), deployer.address);
     });
