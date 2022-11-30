@@ -21,18 +21,21 @@ abstract contract AltInsureTokenBase is
 
     mapping(address => Supply) public bridges;
 
-    event SupplyCapChanged(address _bridge, uint256 _newCap);
+    event BridgeSupplyChanged(
+        address _bridge,
+        uint256 _cap,
+        bool _resetTotal,
+        address _newBridge
+    );
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
-    function __AltInsureBase_init(address _childChainManagerProxy)
-        public
-        virtual
-        initializer
-    {
+    function __AltInsureBase_init(
+        address _childChainManagerProxy
+    ) public virtual initializer {
         __ERC20_init("AltInsureToken", "INSURE");
         __Ownable_init();
         __PolygonChildERC20_init(_childChainManagerProxy);
@@ -42,14 +45,26 @@ abstract contract AltInsureTokenBase is
      * external functions
      */
 
-    function updateBridgeSupplyCap(address _bridge, uint256 _cap)
-        external
-        onlyOwner
-    {
+    function updateBridgeSupply(
+        address _bridge,
+        uint256 _cap,
+        bool _resetTotal,
+        address _newBridge
+    ) external onlyOwner {
+        // set cap to 1 and resetTotal: true would effectively disable a deprecated bridge's ability to burn
+        // if the bridge is not considered malicious, set cap to 1 would be suffice to disable the bridge
         bridges[_bridge].cap = _cap;
+        if (_resetTotal) {
+            bridges[_newBridge].total += bridges[_bridge].total;
+            bridges[_bridge].total = 0;
+        }
 
-        emit SupplyCapChanged(_bridge, _cap);
+        emit BridgeSupplyChanged(_bridge, _cap, _resetTotal, _newBridge);
     }
+
+    /**
+     * @notice Returns the owner address. Required by BEP20.
+     */
 
     function getOwner() external view returns (address) {
         return owner();
@@ -59,11 +74,10 @@ abstract contract AltInsureTokenBase is
      * public functions
      */
 
-    function mint(address _to, uint256 _amount)
-        public
-        virtual
-        override(ICelerBridgeToken)
-    {
+    function mint(
+        address _to,
+        uint256 _amount
+    ) public virtual override(ICelerBridgeToken) {
         Supply storage bridgeSupply = bridges[msg.sender];
         if (bridgeSupply.cap == 0) revert NotAllowedBridger();
         bridgeSupply.total += _amount;
@@ -75,29 +89,23 @@ abstract contract AltInsureTokenBase is
         _burn(_msgSender(), _amount);
     }
 
-    function burn(address _from, uint256 _amount)
-        public
-        virtual
-        override(ICelerBridgeToken)
-    {
+    function burn(
+        address _from,
+        uint256 _amount
+    ) public virtual override(ICelerBridgeToken) {
         _burnFrom(_from, _amount);
     }
 
-    function burnFrom(address _from, uint256 _amount)
-        public
-        virtual
-        override(ICelerBridgeToken)
-    {
+    function burnFrom(
+        address _from,
+        uint256 _amount
+    ) public virtual override(ICelerBridgeToken) {
         _burnFrom(_from, _amount);
     }
 
-    function supportsInterface(bytes4 _interfaceId)
-        public
-        pure
-        virtual
-        override(AccessControlUpgradeable)
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 _interfaceId
+    ) public pure virtual override(AccessControlUpgradeable) returns (bool) {
         bytes4 thisFunctionInterface = bytes4(
             keccak256("supportsInterface(bytes4)")
         );
