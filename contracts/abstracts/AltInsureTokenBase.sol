@@ -14,6 +14,10 @@ abstract contract AltInsureTokenBase is
     PolygonChildERC20Upgradeable,
     ICelerBridgeToken
 {
+    error NotAllowedBridger();
+    error ExceedSupplyCap();
+    error BurnAmountExceeded();
+
     struct Supply {
         uint256 cap;
         uint256 total;
@@ -28,11 +32,9 @@ abstract contract AltInsureTokenBase is
         _disableInitializers();
     }
 
-    function __AltInsureBase_init(address _childChainManagerProxy)
-        public
-        virtual
-        initializer
-    {
+    function __AltInsureBase_init(
+        address _childChainManagerProxy
+    ) public virtual initializer {
         __ERC20_init("AltInsureToken", "INSURE");
         __Ownable_init();
         __PolygonChildERC20_init(_childChainManagerProxy);
@@ -42,10 +44,10 @@ abstract contract AltInsureTokenBase is
      * external functions
      */
 
-    function updateBridgeSupplyCap(address _bridge, uint256 _cap)
-        external
-        onlyOwner
-    {
+    function updateBridgeSupplyCap(
+        address _bridge,
+        uint256 _cap
+    ) external onlyOwner {
         bridges[_bridge].cap = _cap;
 
         emit SupplyCapChanged(_bridge, _cap);
@@ -59,11 +61,10 @@ abstract contract AltInsureTokenBase is
      * public functions
      */
 
-    function mint(address _to, uint256 _amount)
-        public
-        virtual
-        override(ICelerBridgeToken)
-    {
+    function mint(
+        address _to,
+        uint256 _amount
+    ) public virtual override(ICelerBridgeToken) {
         Supply storage bridgeSupply = bridges[msg.sender];
         if (bridgeSupply.cap == 0) revert NotAllowedBridger();
         bridgeSupply.total += _amount;
@@ -75,29 +76,23 @@ abstract contract AltInsureTokenBase is
         _burn(_msgSender(), _amount);
     }
 
-    function burn(address _from, uint256 _amount)
-        public
-        virtual
-        override(ICelerBridgeToken)
-    {
+    function burn(
+        address _from,
+        uint256 _amount
+    ) public virtual override(ICelerBridgeToken) {
         _burnFrom(_from, _amount);
     }
 
-    function burnFrom(address _from, uint256 _amount)
-        public
-        virtual
-        override(ICelerBridgeToken)
-    {
+    function burnFrom(
+        address _from,
+        uint256 _amount
+    ) public virtual override(ICelerBridgeToken) {
         _burnFrom(_from, _amount);
     }
 
-    function supportsInterface(bytes4 _interfaceId)
-        public
-        pure
-        virtual
-        override(AccessControlUpgradeable)
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 _interfaceId
+    ) public pure virtual override(AccessControlUpgradeable) returns (bool) {
         bytes4 thisFunctionInterface = bytes4(
             keccak256("supportsInterface(bytes4)")
         );
@@ -136,7 +131,3 @@ abstract contract AltInsureTokenBase is
         _burn(_from, _amount);
     }
 }
-
-error NotAllowedBridger();
-error ExceedSupplyCap();
-error BurnAmountExceeded();
