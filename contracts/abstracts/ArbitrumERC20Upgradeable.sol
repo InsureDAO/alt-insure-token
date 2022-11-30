@@ -16,7 +16,7 @@ abstract contract ArbitrumERC20Upgradeable is
     address public l1Address;
 
     modifier onlyGateway() {
-        if (_msgSender() != l2Gateway) revert OnlyArbGateway();
+        if (msg.sender != l2Gateway) revert OnlyArbGateway();
         _;
     }
 
