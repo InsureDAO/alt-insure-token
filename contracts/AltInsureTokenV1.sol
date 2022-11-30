@@ -35,43 +35,33 @@ contract AltInsureTokenV1 is
      * public functions
      */
 
-    function mint(address _to, uint256 _amount)
-        public
-        virtual
-        override(OptimismERC20Upgradeable, AltInsureTokenBase)
-    {
+    function mint(
+        address _to,
+        uint256 _amount
+    ) public virtual override(OptimismERC20Upgradeable, AltInsureTokenBase) {
         super.mint(_to, _amount);
     }
 
-    function burn(address _from, uint256 _amount)
-        public
-        virtual
-        override(OptimismERC20Upgradeable, AltInsureTokenBase)
-    {
+    function burn(
+        address _from,
+        uint256 _amount
+    ) public virtual override(OptimismERC20Upgradeable, AltInsureTokenBase) {
         super.burn(_from, _amount);
     }
 
-    function supportsInterface(bytes4 _interfaceId)
+    function supportsInterface(
+        bytes4 _interfaceId
+    )
         public
         pure
         virtual
         override(IERC165Upgradeable, AltInsureTokenBase)
         returns (bool)
     {
-        bytes4 optimismStandardInterface = IOptimismStandardERC20
-            .l1Token
-            .selector ^
-            IOptimismStandardERC20.mint.selector ^
-            IOptimismStandardERC20.burn.selector;
-
-        bytes4 arbitrumStandardInterface = IArbToken.l1Address.selector ^
-            IArbToken.bridgeMint.selector ^
-            IArbToken.bridgeBurn.selector;
-
         return
-            super.supportsInterface(_interfaceId) ||
-            _interfaceId == optimismStandardInterface ||
-            _interfaceId == arbitrumStandardInterface;
+            AltInsureTokenBase.supportsInterface(_interfaceId) ||
+            _interfaceId == type(IOptimismStandardERC20).interfaceId ||
+            _interfaceId == type(IArbToken).interfaceId;
     }
 }
 
