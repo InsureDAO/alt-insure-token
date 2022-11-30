@@ -16,14 +16,14 @@ abstract contract ArbitrumERC20Upgradeable is
     address public l1Address;
 
     modifier onlyGateway() {
-        if (msg.sender != l2Gateway) revert OnlyArbGateway();
+        if (_msgSender() != l2Gateway) revert OnlyArbGateway();
         _;
     }
 
-    function __ArbitrumERC20_init(address _l2Gateway, address _l1Address)
-        internal
-        onlyInitializing
-    {
+    function __ArbitrumERC20_init(
+        address _l2Gateway,
+        address _l1Address
+    ) internal onlyInitializing {
         if (_l1Address == address(0)) revert AddressZero();
         l2Gateway = _l2Gateway;
         l1Address = _l1Address;
