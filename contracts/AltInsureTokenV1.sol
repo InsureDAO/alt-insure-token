@@ -53,7 +53,7 @@ contract AltInsureTokenV1 is
         bytes4 _interfaceId
     )
         public
-        pure
+        view
         virtual
         override(IERC165Upgradeable, AltInsureTokenBase)
         returns (bool)
