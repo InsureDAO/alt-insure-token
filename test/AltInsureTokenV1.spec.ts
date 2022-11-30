@@ -8,7 +8,7 @@ import {
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import { AltInsureTokenV1 } from "../typechain-types";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 const L1_TOKEN = "0x0C4a63D472120d7859E2842b7C2Bafbd8eDe8f44";
 const CHILD_CHAIN_MANAGER_PROXY = "0xb5505a6d998549090530911180f38aC5130101c6";
@@ -59,6 +59,23 @@ describe("AltInsureTokenV1", () => {
       arbitrumL2Gateway,
     };
   };
+
+  describe("AltInsureTokenBase", () => {
+    it("transferFrom", async () => {
+      const { altInsureToken, alice, bob } = await loadFixture(deployFixture);
+
+      await altInsureToken
+        .connect(alice)
+        .approve(bob.address, constants.MaxUint256);
+      await expect(
+        altInsureToken
+          .connect(bob)
+          .transferFrom(alice.address, bob.address, 1_000)
+      )
+        .to.changeTokenBalance(altInsureToken, alice, -1_000)
+        .to.changeTokenBalance(altInsureToken, bob, 1_000);
+    });
+  });
 
   describe("cBridge", () => {
     it("initialize", async () => {

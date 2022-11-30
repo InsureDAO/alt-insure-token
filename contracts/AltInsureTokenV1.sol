@@ -4,7 +4,9 @@ pragma solidity ^0.8.17;
 import {OptimismERC20Upgradeable} from "./abstracts/OptimismERC20Upgradeable.sol";
 import {ArbitrumERC20Upgradeable} from "./abstracts/ArbitrumERC20Upgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC20Upgradeable.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 import {IArbToken} from "./interfaces/IArbToken.sol";
 import {IOptimismStandardERC20} from "./interfaces/IOptimismStandardERC20.sol";
@@ -35,23 +37,37 @@ contract AltInsureTokenV1 is
      * public functions
      */
 
-    function mint(address _to, uint256 _amount)
+    /// @inheritdoc AltInsureTokenBase
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    )
         public
         virtual
-        override(OptimismERC20Upgradeable, AltInsureTokenBase)
+        override(IERC20Upgradeable, ERC20Upgradeable, AltInsureTokenBase)
+        returns (bool)
     {
+        return AltInsureTokenBase.transferFrom(from, to, amount);
+    }
+
+    function mint(
+        address _to,
+        uint256 _amount
+    ) public virtual override(OptimismERC20Upgradeable, AltInsureTokenBase) {
         super.mint(_to, _amount);
     }
 
-    function burn(address _from, uint256 _amount)
-        public
-        virtual
-        override(OptimismERC20Upgradeable, AltInsureTokenBase)
-    {
+    function burn(
+        address _from,
+        uint256 _amount
+    ) public virtual override(OptimismERC20Upgradeable, AltInsureTokenBase) {
         super.burn(_from, _amount);
     }
 
-    function supportsInterface(bytes4 _interfaceId)
+    function supportsInterface(
+        bytes4 _interfaceId
+    )
         public
         pure
         virtual
