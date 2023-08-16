@@ -6,8 +6,8 @@ import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Cont
 
 import {OptimismERC20Upgradeable} from "./abstracts/OptimismERC20Upgradeable.sol";
 import {ArbitrumERC20Upgradeable} from "./abstracts/ArbitrumERC20Upgradeable.sol";
-import {PolygonChildERC20Upgradeable} from "./abstracts/PolygonChildERC20Upgradeable.sol";
-
+import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC20Upgradeable.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 import {IArbToken} from "./interfaces/IArbToken.sol";
 import {IOptimismStandardERC20} from "./interfaces/IOptimismStandardERC20.sol";
@@ -46,6 +46,20 @@ contract AltInsureTokenV1 is
     /**
      * public functions
      */
+
+    /// @inheritdoc AltInsureTokenBase
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    )
+        public
+        virtual
+        override(IERC20Upgradeable, ERC20Upgradeable, AltInsureTokenBase)
+        returns (bool)
+    {
+        return AltInsureTokenBase.transferFrom(from, to, amount);
+    }
 
     function mint(
         address _to,
