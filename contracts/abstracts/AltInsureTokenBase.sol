@@ -5,6 +5,7 @@ import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/
 import {PolygonChildERC20Upgradeable} from "./PolygonChildERC20Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import {ICelerBridgeToken} from "../interfaces/ICelerBridgeToken.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 
@@ -106,7 +107,7 @@ abstract contract AltInsureTokenBase is
     }
 
     function burn(uint256 _amount) public virtual {
-        _burn(_msgSender(), _amount);
+        _burn(msg.sender, _amount);
     }
 
     function burn(
@@ -151,6 +152,17 @@ abstract contract AltInsureTokenBase is
     /**
      * internal functions
      */
+
+    /// @inheritdoc PolygonChildERC20Upgradeable
+    function _msgSender()
+        internal
+        view
+        virtual
+        override(ContextUpgradeable, PolygonChildERC20Upgradeable)
+        returns (address _sender)
+    {
+        return PolygonChildERC20Upgradeable._msgSender();
+    }
 
     function _burnFrom(address _from, uint256 _amount) internal {
         Supply storage bridgeSupply = bridges[msg.sender];
