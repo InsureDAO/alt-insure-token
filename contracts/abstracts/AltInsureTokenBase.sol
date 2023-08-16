@@ -135,10 +135,11 @@ abstract contract AltInsureTokenBase is
     function _burnFrom(address _from, uint256 _amount) internal {
         Supply storage bridgeSupply = bridges[msg.sender];
         // set cap to 1 would effectively disable a deprecated bridge's ability to burn
-        if (bridgeSupply.cap > 0 || bridgeSupply.total > 0) {
-            if (bridgeSupply.total < _amount) revert BurnAmountExceeded();
+        uint256 total = bridgeSupply.total;
+        if (bridgeSupply.cap > 0 || total > 0) {
+            if (total < _amount) revert BurnAmountExceeded();
             unchecked {
-                bridgeSupply.total -= _amount;
+                bridgeSupply.total = total - _amount;
             }
         }
         _spendAllowance(_from, msg.sender, _amount);
