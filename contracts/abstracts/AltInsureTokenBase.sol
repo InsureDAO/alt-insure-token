@@ -2,18 +2,21 @@
 pragma solidity ^0.8.17;
 
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import {PolygonChildERC20Upgradeable} from "./PolygonChildERC20Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
-import {ICelerBridgeToken} from "../interfaces/ICelerBridgeToken.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
+import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import {PolygonChildERC20Upgradeable} from "./PolygonChildERC20Upgradeable.sol";
+
+import {IPolygonChildERC20} from "../interfaces/IPolygonChildERC20.sol";
+import {ICelerBridgeTokenV1} from "../interfaces/ICelerBridgeTokenV1.sol";
+import {ICelerBridgeTokenV2} from "../interfaces/ICelerBridgeTokenV2.sol";
 
 abstract contract AltInsureTokenBase is
     ERC20Upgradeable,
     OwnableUpgradeable,
     PolygonChildERC20Upgradeable,
-    ICelerBridgeToken
+    ICelerBridgeTokenV2
 {
     error NotAllowedBridger();
     error ExceedSupplyCap();
@@ -98,7 +101,7 @@ abstract contract AltInsureTokenBase is
     function mint(
         address _to,
         uint256 _amount
-    ) public virtual override(ICelerBridgeToken) {
+    ) public virtual override(ICelerBridgeTokenV2) {
         Supply storage bridgeSupply = bridges[msg.sender];
         if (bridgeSupply.cap == 0) revert NotAllowedBridger();
         bridgeSupply.total += _amount;
@@ -113,40 +116,25 @@ abstract contract AltInsureTokenBase is
     function burn(
         address _from,
         uint256 _amount
-    ) public virtual override(ICelerBridgeToken) {
+    ) public virtual override(ICelerBridgeTokenV2) {
         _burnFrom(_from, _amount);
     }
 
     function burnFrom(
         address _from,
         uint256 _amount
-    ) public virtual override(ICelerBridgeToken) {
+    ) public virtual override(ICelerBridgeTokenV2) {
         _burnFrom(_from, _amount);
     }
 
     function supportsInterface(
         bytes4 _interfaceId
-    ) public pure virtual override(AccessControlUpgradeable) returns (bool) {
-        bytes4 thisFunctionInterface = bytes4(
-            keccak256("supportsInterface(bytes4)")
-        );
-
-        bytes4 polygonStandardInterface = PolygonChildERC20Upgradeable
-            .withdraw
-            .selector ^ PolygonChildERC20Upgradeable.deposit.selector;
-
-        bytes4 cBridgeInterfaceV1 = ICelerBridgeToken.mint.selector ^
-            ICelerBridgeToken.burn.selector;
-
-        bytes4 cBridgeInterfaceV2 = ICelerBridgeToken.mint.selector ^
-            ICelerBridgeToken.burn.selector ^
-            ICelerBridgeToken.burnFrom.selector;
-
+    ) public view virtual override(AccessControlUpgradeable) returns (bool) {
         return
-            _interfaceId == thisFunctionInterface ||
-            _interfaceId == polygonStandardInterface ||
-            _interfaceId == cBridgeInterfaceV1 ||
-            _interfaceId == cBridgeInterfaceV2;
+            AccessControlUpgradeable.supportsInterface(_interfaceId) ||
+            _interfaceId == type(IPolygonChildERC20).interfaceId ||
+            _interfaceId == type(ICelerBridgeTokenV1).interfaceId ||
+            _interfaceId == type(ICelerBridgeTokenV2).interfaceId;
     }
 
     /**

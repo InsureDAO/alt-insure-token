@@ -4,9 +4,12 @@ pragma solidity ^0.8.17;
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
+import {IPolygonChildERC20} from "../interfaces/IPolygonChildERC20.sol";
+
 abstract contract PolygonChildERC20Upgradeable is
     ERC20Upgradeable,
-    AccessControlUpgradeable
+    AccessControlUpgradeable,
+    IPolygonChildERC20
 {
     bytes32 public constant DEPOSITOR_ROLE = keccak256("DEPOSITOR_ROLE");
 
@@ -57,11 +60,7 @@ abstract contract PolygonChildERC20Upgradeable is
         _mint(user, amount);
     }
 
-    /**
-     * @notice called when user wants to withdraw tokens back to root chain
-     * @dev Should burn user's tokens. This transaction will be verified when exiting on root chain
-     * @param amount amount of tokens to withdraw
-     */
+    /// @inheritdoc IPolygonChildERC20
     function withdraw(uint256 amount) external {
         _burn(_msgSender(), amount);
     }

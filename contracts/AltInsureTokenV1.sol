@@ -79,25 +79,15 @@ contract AltInsureTokenV1 is
         bytes4 _interfaceId
     )
         public
-        pure
+        view
         virtual
         override(IERC165Upgradeable, AltInsureTokenBase)
         returns (bool)
     {
-        bytes4 optimismStandardInterface = IOptimismStandardERC20
-            .l1Token
-            .selector ^
-            IOptimismStandardERC20.mint.selector ^
-            IOptimismStandardERC20.burn.selector;
-
-        bytes4 arbitrumStandardInterface = IArbToken.l1Address.selector ^
-            IArbToken.bridgeMint.selector ^
-            IArbToken.bridgeBurn.selector;
-
         return
-            super.supportsInterface(_interfaceId) ||
-            _interfaceId == optimismStandardInterface ||
-            _interfaceId == arbitrumStandardInterface;
+            AltInsureTokenBase.supportsInterface(_interfaceId) ||
+            _interfaceId == type(IOptimismStandardERC20).interfaceId ||
+            _interfaceId == type(IArbToken).interfaceId;
     }
 }
 
