@@ -9,10 +9,13 @@ import {ArbitrumERC20Upgradeable} from "./abstracts/ArbitrumERC20Upgradeable.sol
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC20Upgradeable.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
-import {IArbToken} from "./interfaces/IArbToken.sol";
-import {IOptimismStandardERC20} from "./interfaces/IOptimismStandardERC20.sol";
 
 import {AltInsureTokenBase} from "./abstracts/AltInsureTokenBase.sol";
+import {OptimismERC20Upgradeable} from "./abstracts/OptimismERC20Upgradeable.sol";
+import {ArbitrumERC20Upgradeable} from "./abstracts/ArbitrumERC20Upgradeable.sol";
+
+import {IArbToken} from "./interfaces/IArbToken.sol";
+import {IOptimismStandardERC20} from "./interfaces/IOptimismStandardERC20.sol";
 
 contract AltInsureTokenV1 is
     AltInsureTokenBase,
@@ -90,7 +93,3 @@ contract AltInsureTokenV1 is
             _interfaceId == type(IArbToken).interfaceId;
     }
 }
-
-error NotAllowedBridger();
-error ExceedSupplyCap();
-error BurnAmountExceeded();
