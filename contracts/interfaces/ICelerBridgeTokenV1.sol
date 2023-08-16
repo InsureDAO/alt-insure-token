@@ -2,10 +2,8 @@
 
 pragma solidity >=0.8.0;
 
-interface ICelerBridgeToken {
+interface ICelerBridgeTokenV1 {
     function mint(address _to, uint256 _amount) external;
 
     function burn(address _from, uint256 _amount) external;
-
-    function burnFrom(address _from, uint256 _amount) external;
 }
