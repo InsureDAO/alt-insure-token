@@ -14,6 +14,10 @@ abstract contract AltInsureTokenBase is
     PolygonChildERC20Upgradeable,
     ICelerBridgeToken
 {
+    error NotAllowedBridger();
+    error ExceedSupplyCap();
+    error BurnAmountExceeded();
+
     struct Supply {
         uint256 cap;
         uint256 total;
@@ -162,7 +166,3 @@ abstract contract AltInsureTokenBase is
         _burn(_from, _amount);
     }
 }
-
-error NotAllowedBridger();
-error ExceedSupplyCap();
-error BurnAmountExceeded();
