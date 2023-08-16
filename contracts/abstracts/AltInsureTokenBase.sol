@@ -74,6 +74,22 @@ abstract contract AltInsureTokenBase is
      * public functions
      */
 
+    /**
+     * @notice This function overrides ERC20#transferFrom function to prevent a malicious bridger to transfer user's token
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) public virtual override returns (bool) {
+        address spender = msg.sender;
+        // bridger cannot call this function
+        if (bridges[spender].cap > 0) revert NotAllowedBridger();
+        _spendAllowance(from, spender, amount);
+        _transfer(from, to, amount);
+        return true;
+    }
+
     function mint(
         address _to,
         uint256 _amount

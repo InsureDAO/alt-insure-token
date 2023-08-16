@@ -64,6 +64,28 @@ describe("AltInsureTokenV1 edge cases", () => {
     };
   };
 
+  describe("AltInsureTokenBase", () => {
+    it("reject call of #transferFrom by a bridger", async () => {
+      const { altInsureToken, alice, bridger } = await loadFixture(
+        deployFixture
+      );
+
+      await altInsureToken.updateBridgeSupply(
+        bridger.address,
+        10_000,
+        false,
+        constants.AddressZero
+      );
+      await altInsureToken.connect(alice).approve(bridger.address, 10_000);
+
+      await expect(
+        altInsureToken
+          .connect(bridger)
+          .transferFrom(alice.address, bridger.address, 10_000)
+      ).to.be.revertedWithCustomError(altInsureToken, "NotAllowedBridger");
+    });
+  });
+
   describe("cBridge", () => {
     // describe("initialize", () => {});
     describe("mint()", () => {

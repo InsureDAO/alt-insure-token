@@ -64,6 +64,23 @@ describe("AltInsureTokenV1", () => {
     };
   };
 
+  describe("AltInsureTokenBase", () => {
+    it("transferFrom", async () => {
+      const { altInsureToken, alice, bob } = await loadFixture(deployFixture);
+
+      await altInsureToken
+        .connect(alice)
+        .approve(bob.address, constants.MaxUint256);
+      await expect(
+        altInsureToken
+          .connect(bob)
+          .transferFrom(alice.address, bob.address, 1_000)
+      )
+        .to.changeTokenBalance(altInsureToken, alice, -1_000)
+        .to.changeTokenBalance(altInsureToken, bob, 1_000);
+    });
+  });
+
   describe("cBridge", () => {
     it("initialize", async () => {
       const { altInsureToken, deployer } = await loadFixture(deployFixture);
