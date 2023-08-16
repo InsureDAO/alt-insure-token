@@ -25,7 +25,12 @@ abstract contract AltInsureTokenBase is
 
     mapping(address => Supply) public bridges;
 
-    event SupplyCapChanged(address _bridge, uint256 _newCap);
+    event BridgeSupplyChanged(
+        address _bridge,
+        uint256 _cap,
+        bool _resetTotal,
+        address _newBridge
+    );
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -44,14 +49,26 @@ abstract contract AltInsureTokenBase is
      * external functions
      */
 
-    function updateBridgeSupplyCap(
+    function updateBridgeSupply(
         address _bridge,
-        uint256 _cap
+        uint256 _cap,
+        bool _resetTotal,
+        address _newBridge
     ) external onlyOwner {
+        // set cap to 1 and resetTotal: true would effectively disable a deprecated bridge's ability to burn
+        // if the bridge is not considered malicious, set cap to 1 would be suffice to disable the bridge
         bridges[_bridge].cap = _cap;
+        if (_resetTotal) {
+            bridges[_newBridge].total += bridges[_bridge].total;
+            bridges[_bridge].total = 0;
+        }
 
-        emit SupplyCapChanged(_bridge, _cap);
+        emit BridgeSupplyChanged(_bridge, _cap, _resetTotal, _newBridge);
     }
+
+    /**
+     * @notice Returns the owner address. Required by BEP20.
+     */
 
     function getOwner() external view returns (address) {
         return owner();
@@ -60,6 +77,22 @@ abstract contract AltInsureTokenBase is
     /**
      * public functions
      */
+
+    /**
+     * @notice This function overrides ERC20#transferFrom function to prevent a malicious bridger to transfer user's token
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) public virtual override returns (bool) {
+        address spender = msg.sender;
+        // bridger cannot call this function
+        if (bridges[spender].cap > 0) revert NotAllowedBridger();
+        _spendAllowance(from, spender, amount);
+        _transfer(from, to, amount);
+        return true;
+    }
 
     function mint(
         address _to,
@@ -121,10 +154,12 @@ abstract contract AltInsureTokenBase is
 
     function _burnFrom(address _from, uint256 _amount) internal {
         Supply storage bridgeSupply = bridges[msg.sender];
-        if (bridgeSupply.cap > 0 || bridgeSupply.total > 0) {
-            if (bridgeSupply.total < _amount) revert BurnAmountExceeded();
+        // set cap to 1 would effectively disable a deprecated bridge's ability to burn
+        uint256 total = bridgeSupply.total;
+        if (bridgeSupply.cap > 0 || total > 0) {
+            if (total < _amount) revert BurnAmountExceeded();
             unchecked {
-                bridgeSupply.total -= _amount;
+                bridgeSupply.total = total - _amount;
             }
         }
         _spendAllowance(_from, msg.sender, _amount);
