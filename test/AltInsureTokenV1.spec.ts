@@ -8,7 +8,7 @@ import {
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import { AltInsureTokenV1 } from "../typechain-types";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 const L1_TOKEN = "0x0C4a63D472120d7859E2842b7C2Bafbd8eDe8f44";
 const CHILD_CHAIN_MANAGER_PROXY = "0xb5505a6d998549090530911180f38aC5130101c6";
@@ -20,10 +20,11 @@ describe("AltInsureTokenV1", () => {
     deployer: SignerWithAddress;
     alice: SignerWithAddress;
     bob: SignerWithAddress;
+    carol: SignerWithAddress;
     childChainManagerProxy: SignerWithAddress;
     arbitrumL2Gateway: SignerWithAddress;
   }> => {
-    const [deployer, alice, bob] = await ethers.getSigners();
+    const [deployer, alice, bob, carol] = await ethers.getSigners();
     const childChainManagerProxy = await ethers.getImpersonatedSigner(
       CHILD_CHAIN_MANAGER_PROXY
     );
@@ -39,9 +40,11 @@ describe("AltInsureTokenV1", () => {
       }
     )) as AltInsureTokenV1;
 
-    await altInsureToken.updateBridgeSupplyCap(
+    await altInsureToken.updateBridgeSupply(
       deployer.address,
-      ethers.constants.MaxUint256
+      ethers.constants.MaxUint256,
+      false,
+      constants.AddressZero
     );
 
     await altInsureToken.mint(alice.address, 10_000);
@@ -55,6 +58,7 @@ describe("AltInsureTokenV1", () => {
       deployer,
       alice,
       bob,
+      carol,
       childChainManagerProxy,
       arbitrumL2Gateway,
     };
@@ -123,22 +127,81 @@ describe("AltInsureTokenV1", () => {
         .changeTokenBalance(altInsureToken, alice, -1_000);
     });
 
-    it("updateBridgeSupplyCap()", async () => {
-      const { altInsureToken, alice } = await loadFixture(deployFixture);
+    it("updateBridgeSupply()", async () => {
+      const { altInsureToken, alice, bob, carol } = await loadFixture(
+        deployFixture
+      );
 
       const initialSupply = await altInsureToken.bridges(alice.address);
 
       assert.deepEqual(initialSupply.cap, ethers.constants.Zero);
       assert.deepEqual(initialSupply.total, ethers.constants.Zero);
 
+      /**
+       * Allowing a bridger
+       */
       await expect(
-        altInsureToken.updateBridgeSupplyCap(alice.address, 10_000)
-      ).to.emit(altInsureToken, "SupplyCapChanged");
+        altInsureToken.updateBridgeSupply(
+          alice.address,
+          1_000,
+          false,
+          constants.AddressZero
+        )
+      )
+        .to.emit(altInsureToken, "BridgeSupplyChanged")
+        .withArgs(alice.address, 1_000, false, constants.AddressZero);
 
       const updatedSupply = await altInsureToken.bridges(alice.address);
 
-      assert.deepEqual(updatedSupply.cap, BigNumber.from("10000"));
+      assert.deepEqual(updatedSupply.cap, BigNumber.from("1000"));
       assert.deepEqual(updatedSupply.total, ethers.constants.Zero);
+
+      // Assume bob approves unlimited transfer
+      await altInsureToken
+        .connect(bob)
+        .approve(alice.address, constants.MaxUint256);
+
+      // Mint and burn should succeed
+      await expect(
+        altInsureToken.connect(alice).mint(bob.address, 1_000)
+      ).changeTokenBalance(altInsureToken, bob, 1_000);
+
+      await expect(
+        altInsureToken
+          .connect(alice)
+          ["burn(address,uint256)"](bob.address, 1_000)
+      ).to.changeTokenBalance(altInsureToken, bob, -1_000);
+
+      /**
+       * Deprecating a bridger
+       */
+      await expect(
+        altInsureToken.updateBridgeSupply(alice.address, 1, true, carol.address)
+      )
+        .to.emit(altInsureToken, "BridgeSupplyChanged")
+        .withArgs(alice.address, 1, true, carol.address);
+
+      // Mint and burn should fail
+      await expect(
+        altInsureToken.connect(alice).mint(bob.address, 1_000)
+      ).to.be.revertedWithCustomError(altInsureToken, "ExceedSupplyCap");
+
+      await expect(
+        altInsureToken
+          .connect(alice)
+          ["burn(address,uint256)"](bob.address, 1_000)
+      ).to.be.revertedWithCustomError(altInsureToken, "BurnAmountExceeded");
+
+      // A new bridge should succeed to call burn
+      await altInsureToken
+        .connect(bob)
+        .approve(carol.address, constants.MaxUint256);
+
+      await expect(
+        altInsureToken
+          .connect(carol)
+          ["burn(address,uint256)"](bob.address, 1_000)
+      ).to.changeTokenBalance(altInsureToken, bob, -1_000);
     });
 
     it("getOwner()", async () => {

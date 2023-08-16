@@ -21,7 +21,12 @@ abstract contract AltInsureTokenBase is
 
     mapping(address => Supply) public bridges;
 
-    event SupplyCapChanged(address _bridge, uint256 _newCap);
+    event BridgeSupplyChanged(
+        address _bridge,
+        uint256 _cap,
+        bool _resetTotal,
+        address _newBridge
+    );
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -40,14 +45,26 @@ abstract contract AltInsureTokenBase is
      * external functions
      */
 
-    function updateBridgeSupplyCap(
+    function updateBridgeSupply(
         address _bridge,
-        uint256 _cap
+        uint256 _cap,
+        bool _resetTotal,
+        address _newBridge
     ) external onlyOwner {
+        // set cap to 1 and resetTotal: true would effectively disable a deprecated bridge's ability to burn
+        // if the bridge is not considered malicious, set cap to 1 would be suffice to disable the bridge
         bridges[_bridge].cap = _cap;
+        if (_resetTotal) {
+            bridges[_newBridge].total += bridges[_bridge].total;
+            bridges[_bridge].total = 0;
+        }
 
-        emit SupplyCapChanged(_bridge, _cap);
+        emit BridgeSupplyChanged(_bridge, _cap, _resetTotal, _newBridge);
     }
+
+    /**
+     * @notice Returns the owner address. Required by BEP20.
+     */
 
     function getOwner() external view returns (address) {
         return owner();
@@ -117,6 +134,7 @@ abstract contract AltInsureTokenBase is
 
     function _burnFrom(address _from, uint256 _amount) internal {
         Supply storage bridgeSupply = bridges[msg.sender];
+        // set cap to 1 would effectively disable a deprecated bridge's ability to burn
         uint256 total = bridgeSupply.total;
         if (bridgeSupply.cap > 0 || total > 0) {
             if (total < _amount) revert BurnAmountExceeded();

@@ -8,6 +8,7 @@ import {
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import { AltInsureTokenV1 } from "../typechain-types";
+import { constants } from "ethers";
 
 const L1_TOKEN = "0x0C4a63D472120d7859E2842b7C2Bafbd8eDe8f44";
 const CHILD_CHAIN_MANAGER_PROXY = "0xb5505a6d998549090530911180f38aC5130101c6";
@@ -39,9 +40,11 @@ describe("AltInsureTokenV1 edge cases", () => {
       }
     )) as AltInsureTokenV1;
 
-    await altInsureToken.updateBridgeSupplyCap(
+    await altInsureToken.updateBridgeSupply(
       deployer.address,
-      ethers.constants.MaxUint256
+      ethers.constants.MaxUint256,
+      false,
+      constants.AddressZero
     );
 
     await altInsureToken.mint(alice.address, 10_000);
@@ -77,7 +80,12 @@ describe("AltInsureTokenV1 edge cases", () => {
         );
         await altInsureToken
           .connect(deployer)
-          .updateBridgeSupplyCap(bridger.address, 999);
+          .updateBridgeSupply(
+            bridger.address,
+            999,
+            false,
+            constants.AddressZero
+          );
         await expect(
           altInsureToken.connect(bridger).mint(alice.address, 1_000)
         ).to.be.revertedWithCustomError(altInsureToken, "ExceedSupplyCap");
@@ -100,7 +108,12 @@ describe("AltInsureTokenV1 edge cases", () => {
         const { altInsureToken, alice, bridger } = await loadFixture(
           deployFixture
         );
-        await altInsureToken.updateBridgeSupplyCap(bridger.address, 10_000);
+        await altInsureToken.updateBridgeSupply(
+          bridger.address,
+          10_000,
+          false,
+          constants.AddressZero
+        );
         await altInsureToken.connect(alice).approve(bridger.address, 10_000);
         await expect(
           altInsureToken
@@ -124,7 +137,12 @@ describe("AltInsureTokenV1 edge cases", () => {
         const { altInsureToken, alice, bridger } = await loadFixture(
           deployFixture
         );
-        await altInsureToken.updateBridgeSupplyCap(bridger.address, 10_000);
+        await altInsureToken.updateBridgeSupply(
+          bridger.address,
+          10_000,
+          false,
+          constants.AddressZero
+        );
         await altInsureToken.connect(alice).approve(bridger.address, 10_000);
         await expect(
           altInsureToken.connect(bridger).burnFrom(alice.address, 10_000)
