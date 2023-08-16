@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.17;
 
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+
 import {OptimismERC20Upgradeable} from "./abstracts/OptimismERC20Upgradeable.sol";
 import {ArbitrumERC20Upgradeable} from "./abstracts/ArbitrumERC20Upgradeable.sol";
-import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-
+import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC20Upgradeable.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 import {IArbToken} from "./interfaces/IArbToken.sol";
 import {IOptimismStandardERC20} from "./interfaces/IOptimismStandardERC20.sol";
@@ -31,9 +34,32 @@ contract AltInsureTokenV1 is
         __ArbitrumERC20_init(_l2Gateway, _l1Token);
     }
 
+    function _msgSender()
+        internal
+        view
+        override(ContextUpgradeable, AltInsureTokenBase)
+        returns (address _sender)
+    {
+        return AltInsureTokenBase._msgSender();
+    }
+
     /**
      * public functions
      */
+
+    /// @inheritdoc AltInsureTokenBase
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    )
+        public
+        virtual
+        override(IERC20Upgradeable, ERC20Upgradeable, AltInsureTokenBase)
+        returns (bool)
+    {
+        return AltInsureTokenBase.transferFrom(from, to, amount);
+    }
 
     function mint(
         address _to,

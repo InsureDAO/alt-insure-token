@@ -20,7 +20,38 @@ abstract contract PolygonChildERC20Upgradeable is
         _setupRole(DEPOSITOR_ROLE, _childChainManagerProxy);
     }
 
-    /// @inheritdoc IPolygonChildERC20
+    // This is to support Native meta transactions
+    function _msgSender()
+        internal
+        view
+        virtual
+        override
+        returns (address _sender)
+    {
+        if (msg.sender == address(this)) {
+            bytes memory array = msg.data;
+            uint256 index = msg.data.length;
+            assembly {
+                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
+                _sender := and(
+                    mload(add(array, index)),
+                    0xffffffffffffffffffffffffffffffffffffffff
+                )
+            }
+        } else {
+            _sender = payable(msg.sender);
+        }
+        return _sender;
+    }
+
+    /**
+     * @notice called when token is deposited on root chain
+     * @dev Should be callable only by ChildChainManager
+     * Should handle deposit by minting the required amount for user
+     * Make sure minting is done only by this function
+     * @param user user address for whom deposit is being done
+     * @param depositData abi encoded amount
+     */
     function deposit(
         address user,
         bytes calldata depositData
