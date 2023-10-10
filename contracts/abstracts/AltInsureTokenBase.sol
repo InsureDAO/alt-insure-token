@@ -44,7 +44,7 @@ abstract contract AltInsureTokenBase is
     function __AltInsureBase_init(
         address _childChainManagerProxy
     ) public virtual initializer {
-        __ERC20_init("AltInsureToken", "INSURE");
+        __ERC20_init("InsureToken", "INSURE");
         __Ownable_init();
         __PolygonChildERC20_init(_childChainManagerProxy);
     }
