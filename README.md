@@ -45,7 +45,7 @@ The config file should contain the following fields:
 The deploy script is located in `scripts/01.initial-deploy.sh`. You can run the script with the following command:
 
 ```shell
-NETWORK=optimism TESTNET=true scripts/01.initial-deploy.sh
+NETWORK=optimism scripts/01.initial-deploy.sh
 ```
 
 or you can define node script as shorthand in `package.json`:

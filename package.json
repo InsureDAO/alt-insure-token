@@ -26,9 +26,9 @@
     "prepare": "husky install",
     "test": "hardhat test",
     "coverage": "hardhat coverage",
-    "deploy:optimism": "NETWORK=optimism TESTNET=true scripts/01.initial-deploy.sh",
-    "deploy:arbitrum": "NETWORK=arbitrum TESTNET=true scripts/01.initial-deploy.sh",
-    "deploy:polygon": "NETWORK=polygon TESTNET=true scripts/01.initial-deploy.sh",
+    "deploy:optimism": "NETWORK=optimism scripts/01.initial-deploy.sh",
+    "deploy:arbitrum": "NETWORK=arbitrum scripts/01.initial-deploy.sh",
+    "deploy:polygon": "NETWORK=polygon scripts/01.initial-deploy.sh",
     "deploy:optimismGoerli": "NETWORK=optimismGoerli TESTNET=true scripts/01.initial-deploy.sh",
     "deploy:arbitrumGoerli": "NETWORK=optimismGoerli TESTNET=true scripts/01.initial-deploy.sh",
     "deploy:mumbai": "NETWORK=mumbai TESTNET=true scripts/01.initial-deploy.sh"
